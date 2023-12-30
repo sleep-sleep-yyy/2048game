@@ -10,12 +10,14 @@ USING_NS_CC;
 class GameScene :public Layer
 {
 public:
-	static cocos2d::Scene* createScene();
+	static Scene* createScene();
 	virtual bool init();
 	CREATE_FUNC(GameScene);
 	//触摸监听
-	virtual bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
-	virtual void onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);
+	virtual bool onTouchBegan(Touch* touch, Event* event);
+	virtual void onTouchEnded(Touch* touch,Event* event);
+	void onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
+	
 	//上下左右滑动动作
 	bool moveLeft();
 	bool moveRight();
@@ -42,7 +44,8 @@ private:
 	int mode=4;//游戏模式
 	Label* scoreLabel;
 	Sprite* soundButton;//声音按钮
-	bool isSoundOn=true;
+	bool isSoundOn=true;//声音控制
+	EventListenerKeyboard* keyboardListener;//键盘监听器
 	CardSprite* cardArr[5][5];  //数字卡片矩阵
 	Point startPt; //触摸开始点
 	int offsetX, offsetY;  //触摸水平和竖直方向偏移量

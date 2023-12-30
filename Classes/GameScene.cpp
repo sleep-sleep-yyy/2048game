@@ -88,10 +88,19 @@ bool GameScene::init()
 	randomCreateCard();
 
 	//添加触摸监听
-	const auto listener = EventListenerTouchOneByOne::create();
-	listener->onTouchBegan = CC_CALLBACK_2(GameScene::onTouchBegan, this);
-	listener->onTouchEnded = CC_CALLBACK_2(GameScene::onTouchEnded, this);
-	_eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
+	const auto touchListener = EventListenerTouchOneByOne::create();
+	touchListener->onTouchBegan = CC_CALLBACK_2(GameScene::onTouchBegan, this);
+	touchListener->onTouchEnded = CC_CALLBACK_2(GameScene::onTouchEnded, this);
+	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(touchListener, this);
+
+
+	//添加键盘监听
+	keyboardListener = EventListenerKeyboard::create();
+	keyboardListener->onKeyPressed = CC_CALLBACK_2(GameScene::onKeyPressed, this);
+	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(keyboardListener, this);
+	//_eventDispatcher->addEventListenerWithSceneGraphPriority(keyboardListener, this);
+
+
 	return true;
 }
 void GameScene::restart(Ref* sender)
@@ -137,6 +146,35 @@ void GameScene::onTouchEnded(Touch* touch, Event* event)
 	}
 	if (soundButton->getBoundingBox().containsPoint(endPt))//如果点到了声音控制
 		toggleSound();
+}
+void GameScene::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
+{
+	bool isTouch = false;
+	switch (keyCode)
+	{
+	case EventKeyboard::KeyCode::KEY_LEFT_ARROW:
+		isTouch=moveLeft();
+		break;
+	case EventKeyboard::KeyCode::KEY_RIGHT_ARROW:
+		isTouch=moveRight();
+		break;
+	case EventKeyboard::KeyCode::KEY_UP_ARROW:
+		isTouch = moveUp();
+		break;
+	case EventKeyboard::KeyCode::KEY_DOWN_ARROW:
+		isTouch = moveDown();
+		break;
+	default:
+		break;
+	}
+	if (isTouch)//如果滑动
+	{
+		scoreLabel->setString(String::createWithFormat("%d", score)->getCString());
+		checkGameWin();
+		randomCreateCard();
+		checkGameOver();
+		//要先生成卡牌再看有没有输
+	}
 }
 void GameScene::createCardArr()
 {
@@ -407,6 +445,7 @@ void GameScene::createRanking(const int& score)
 }
 void GameScene::showMenu(std::string result)
 {
+	_eventDispatcher->removeEventListenersForType(EventListener::Type::KEYBOARD);
 	littleMenu = LittleMenu::create(Color4B(0, 0, 0, 100));
 	this->addChild(littleMenu);
 	const auto menuSize = littleMenu->getContentSize();
@@ -443,6 +482,7 @@ void GameScene::showMenu(std::string result)
 }
 void GameScene::showRanking(Ref* sender)
 {
+	keyboardListener->setEnabled(false);
 	littleMenu = LittleMenu::create(Color4B(0, 0, 0, 100));
 	this->addChild(littleMenu);
 	menuItemNew3->setEnabled(false);
@@ -452,7 +492,6 @@ void GameScene::showRanking(Ref* sender)
 	const auto gameBkGround2 = LayerColor::create(Color4B(119, 136, 153, 100));
 	this->addChild(gameBkGround2);//蓝底
 	//添加顺序
-	
 	const auto order = Label::createWithTTF("order", "fonts/calibri.ttf", 40);
 	order->setColor(Color3B(191, 191, 191));
 	order->setPosition(Vec2(visibleSize.width * 1 / 4-100, visibleSize.height - 45));
@@ -474,6 +513,7 @@ void GameScene::showRanking(Ref* sender)
 		gameBkGround1->setPosition(Vec2(51, visibleSize.height / 10 * i));
 		this->addChild(gameBkGround1);
 	}
+	//得到vector,排序，展示
 	getNoSort();
 	std::sort(rankingList.begin(), rankingList.end(), [](const GameScene::IntString& a, const GameScene::IntString& b) noexcept {
 		return a.number > b.number; });//排序一下
@@ -498,6 +538,7 @@ void GameScene::showRanking(Ref* sender)
 }
 void GameScene::resume(Ref* sender)
 {
+	keyboardListener->setEnabled(true);
 	Director::getInstance()->resume();
 	this->removeChild(littleMenu, true);
 	menuItemNew1->setEnabled(true);
@@ -508,6 +549,8 @@ void GameScene::resume(Ref* sender)
 }
 void GameScene::pauseMenu(Ref* sender)
 {
+	keyboardListener->setEnabled(false);
+	//_eventDispatcher->removeEventListenersForType(EventListener::Type::KEYBOARD);
 	menuItemNew1->setEnabled(false);
 	menuItemNew2->setEnabled(false);
 	menuItemNew3->setEnabled(false);
@@ -525,8 +568,6 @@ void GameScene::pauseMenu(Ref* sender)
 	const auto menu = Menu::create(menuItemRestart, NULL);
 	littleMenu->addChild(menu);
 	menu->setPosition(Point(menuSize.width / 2, menuSize.height / 2));
-
-
 }
 void GameScene::modeChange(Ref* sender) 
 {
