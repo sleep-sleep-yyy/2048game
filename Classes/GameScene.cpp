@@ -116,21 +116,21 @@ bool GameScene::onTouchBegan(Touch* touch, Event* event)
 void GameScene::onTouchEnded(Touch* touch, Event* event)
 {
 	const auto endPt = touch->getLocation();  //获得触摸结束点
-	offsetX = endPt.x - startPt.x;  //计算鼠标移动偏移
-	offsetY = endPt.y - startPt.y;
+	moveX = endPt.x - startPt.x;  //计算鼠标移动偏移
+	moveY = endPt.y - startPt.y;
 	bool isTouch = false;
-	if (abs(offsetX) > abs(offsetY)) //那就是左右方向的
+	if (abs(moveX) > abs(moveY)) //那就是左右方向的
 	{
-		if (offsetX < -5)
+		if (moveX < -5)
 			isTouch = moveLeft();
-		else if (offsetX > 5)
+		else if (moveX > 5)
 			isTouch = moveRight();
 	}
 	else//反之是上下方向
 	{
-		if (offsetY > 5)
+		if (moveY > 5)
 			isTouch = moveUp();
-		else if (offsetY < -5)
+		else if (moveY < -5)
 			isTouch = moveDown();
 	}
 	if (isTouch)//如果滑动
@@ -193,7 +193,7 @@ void GameScene::createCardArr()
 					j * TileWidth_2 + (j + 1) * TileBorderWidth_2, mode);
 			}
 			this->addChild(card);
-			cardArr[i][j] = card;  //存到卡片矩阵
+			cardArr[j][i] = card;  //存到卡片矩阵
 		}
 	}
 }
@@ -213,65 +213,26 @@ void GameScene::randomCreateCard()
 	}
 }
 /*----向左滑动逻辑----*/
-bool GameScene::moveLeft()//要从左开始处理这些卡片
-{
-	bool moved = false;//是否移动
-	bool cleared = false;//是否消除
-	for (int y = 0; y < mode; y++)
-	{
-		for (int x = 0; x < mode; x++){  
-			for (int x1 = x + 1; x1 < mode; x1++)
-			{
-				if (cardArr[x1][y]->getNumber() > 0){  //x右边的卡片有数字才动作
-					if (cardArr[x][y]->getNumber() == 0){
-						cardArr[x][y]->setNumber(cardArr[x1][y]->getNumber());
-						cardArr[x1][y]->setNumber(0);
-						x--;  //再扫描一遍， 保所有结果正确
-						moved = true;
-					}
-					else if (cardArr[x][y]->getNumber() == cardArr[x1][y]->getNumber()){
-						cardArr[x][y]->setNumber(cardArr[x][y]->getNumber() * 2);
-						cardArr[x1][y]->setNumber(0);
-						//数字合并动画
-						auto merge = Sequence::create(ScaleTo::create(0.1f, 1.2f), ScaleTo::create(0.1f, 1.0f), NULL);
-						cardArr[x][y]->getCardLayer()->runAction(merge);
-						//分数计算
-						score += cardArr[x][y]->getNumber();
-						moved = true;
-						cleared = true;
-					}
-					break; 
-				}
-			}
-		}
-	}
-	//播放得分声音
-	if (moved&&!cleared && isSoundOn)
-		SimpleAudioEngine::getInstance()->playEffect("Move.wav");
-	if(cleared && isSoundOn)
-		SimpleAudioEngine::getInstance()->playEffect("MoveClear.mp3");
-	return moved;
-}
-bool GameScene::moveRight()
-{
+bool GameScene::moveLeft() {
 	bool moved = false;
 	bool cleared = false;
-	for (int y = 0; y < mode; y++){
-		for (int x = mode-1; x >= 0; x--){
-			for (int x1 = x - 1; x1 >= 0; x1--){
-				if (cardArr[x1][y]->getNumber() > 0) {
-					if (cardArr[x][y]->getNumber() == 0){
-						cardArr[x][y]->setNumber(cardArr[x1][y]->getNumber());
-						cardArr[x1][y]->setNumber(0);
-						x++;
+	for (int x = 0; x < mode; x++) {
+		for (int y = 0; y < mode; y++) {
+			for (int y1 = y + 1; y1 < mode; y1++) {
+				if (cardArr[x][y1]->getNumber() > 0) {
+					if (cardArr[x][y]->getNumber() == 0) {
+						cardArr[x][y]->setNumber(cardArr[x][y1]->getNumber());
+						cardArr[x][y1]->setNumber(0);
+						y--;
 						moved = true;
 					}
-					else if (cardArr[x][y]->getNumber() == cardArr[x1][y]->getNumber()){
+					else if (cardArr[x][y]->getNumber() == cardArr[x][y1]->getNumber()) {
 						cardArr[x][y]->setNumber(cardArr[x][y]->getNumber() * 2);
-						cardArr[x1][y]->setNumber(0);
+						cardArr[x][y1]->setNumber(0);
 
 						auto merge = Sequence::create(ScaleTo::create(0.1f, 1.2f), ScaleTo::create(0.1f, 1.0f), NULL);
 						cardArr[x][y]->getCardLayer()->runAction(merge);
+
 						score += cardArr[x][y]->getNumber();
 						moved = true;
 						cleared = true;
@@ -288,7 +249,7 @@ bool GameScene::moveRight()
 		SimpleAudioEngine::getInstance()->playEffect("MoveClear.mp3");
 	return moved;
 }
-bool GameScene::moveUp()
+bool GameScene::moveRight()
 {
 	bool moved = false;
 	bool cleared = false;
@@ -323,26 +284,26 @@ bool GameScene::moveUp()
 		SimpleAudioEngine::getInstance()->playEffect("MoveClear.mp3");
 	return moved;
 }
-bool GameScene::moveDown() {
+bool GameScene::moveUp()
+{
 	bool moved = false;
 	bool cleared = false;
-	for (int x = 0; x < mode; x++){
-		for (int y = 0; y < mode; y++){
-			for (int y1 = y + 1; y1 < mode; y1++){
-				if (cardArr[x][y1]->getNumber() > 0) {
-					if (cardArr[x][y]->getNumber() == 0){
-						cardArr[x][y]->setNumber(cardArr[x][y1]->getNumber());
-						cardArr[x][y1]->setNumber(0);
-						y--;
+	for (int y = 0; y < mode; y++) {
+		for (int x = mode - 1; x >= 0; x--) {
+			for (int x1 = x - 1; x1 >= 0; x1--) {
+				if (cardArr[x1][y]->getNumber() > 0) {
+					if (cardArr[x][y]->getNumber() == 0) {
+						cardArr[x][y]->setNumber(cardArr[x1][y]->getNumber());
+						cardArr[x1][y]->setNumber(0);
+						x++;
 						moved = true;
 					}
-					else if (cardArr[x][y]->getNumber() == cardArr[x][y1]->getNumber()){
+					else if (cardArr[x][y]->getNumber() == cardArr[x1][y]->getNumber()) {
 						cardArr[x][y]->setNumber(cardArr[x][y]->getNumber() * 2);
-						cardArr[x][y1]->setNumber(0);
+						cardArr[x1][y]->setNumber(0);
 
 						auto merge = Sequence::create(ScaleTo::create(0.1f, 1.2f), ScaleTo::create(0.1f, 1.0f), NULL);
 						cardArr[x][y]->getCardLayer()->runAction(merge);
-
 						score += cardArr[x][y]->getNumber();
 						moved = true;
 						cleared = true;
@@ -353,7 +314,46 @@ bool GameScene::moveDown() {
 		}
 	}
 	//播放得分声音
-	if (moved && !cleared&&isSoundOn)
+	if (moved && !cleared && isSoundOn)
+		SimpleAudioEngine::getInstance()->playEffect("Move.wav");
+	if (cleared && isSoundOn)
+		SimpleAudioEngine::getInstance()->playEffect("MoveClear.mp3");
+	return moved;
+}
+bool GameScene::moveDown()//要从左开始处理这些卡片
+{
+	bool moved = false;//是否移动
+	bool cleared = false;//是否消除
+	for (int y = 0; y < mode; y++)
+	{
+		for (int x = 0; x < mode; x++) {
+			for (int x1 = x + 1; x1 < mode; x1++)
+			{
+				if (cardArr[x1][y]->getNumber() > 0) {  //x右边的卡片有数字才动作
+					if (cardArr[x][y]->getNumber() == 0) {
+						cardArr[x][y]->setNumber(cardArr[x1][y]->getNumber());
+						cardArr[x1][y]->setNumber(0);
+						x--;  //再扫描一遍， 保所有结果正确
+						moved = true;
+					}
+					else if (cardArr[x][y]->getNumber() == cardArr[x1][y]->getNumber()) {
+						cardArr[x][y]->setNumber(cardArr[x][y]->getNumber() * 2);
+						cardArr[x1][y]->setNumber(0);
+						//数字合并动画
+						auto merge = Sequence::create(ScaleTo::create(0.1f, 1.2f), ScaleTo::create(0.1f, 1.0f), NULL);
+						cardArr[x][y]->getCardLayer()->runAction(merge);
+						//分数计算
+						score += cardArr[x][y]->getNumber();
+						moved = true;
+						cleared = true;
+					}
+					break;
+				}
+			}
+		}
+	}
+	//播放得分声音
+	if (moved && !cleared && isSoundOn)
 		SimpleAudioEngine::getInstance()->playEffect("Move.wav");
 	if (cleared && isSoundOn)
 		SimpleAudioEngine::getInstance()->playEffect("MoveClear.mp3");
@@ -587,6 +587,7 @@ void GameScene::Continue(Ref* sender)
 {
 	menuItemNew3->setEnabled(true);
 	menuItemNew4->setEnabled(true);
+	rankingList.clear();
 	this->removeChild(littleMenu, true);
 }
 /*----模式转换----*/
@@ -611,7 +612,7 @@ void GameScene::checkGameWin()
 	bool isWin = false;
 	for (int i = 0; i < mode; i++)
 		for (int j = 0; j < mode; j++)
-			if (2048 == cardArr[i][j]->getNumber())
+			if (cardArr[i][j]->getNumber()==2048)
 				isWin = true;
 	if (isWin && isSoundOn)
 	{

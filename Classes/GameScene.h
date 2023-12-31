@@ -58,7 +58,7 @@ private:
 	EventListenerKeyboard* keyboardListener;//键盘监听器
 	CardSprite* cardArr[5][5];  //数字卡片矩阵
 	Point startPt; //触摸开始点
-	int offsetX, offsetY;  //触摸水平和竖直方向偏移量
+	int moveX, moveY;  //触摸水平和竖直方向偏移量
 	MenuItemLabel* menuItemNew1;//按钮放在这里方便对其宏观调控
 	MenuItemLabel* menuItemNew2;
 	MenuItemLabel* menuItemNew3;
