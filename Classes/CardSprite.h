@@ -13,9 +13,10 @@ public:
 	int getNumber();//获得卡片数字
 	LayerColor* getCardLayer();
 private:
-	int number;
 	void cardInit(int num, float p_x, float p_y, int mode);
+	int number;
 	Label* cardLabel;
+	//LayerColor创建具有指定背景色的图层
 	LayerColor* cardBgColour;
 };
 #endif

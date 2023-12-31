@@ -4,45 +4,55 @@
 #include "CardSprite.h"
 #include "LittleMenu.h"
 #include <vector>
-
 USING_NS_CC;
-//int mode = 4;//游戏模式
 class GameScene :public Layer
 {
 public:
-	static Scene* createScene();
-	virtual bool init();
-	CREATE_FUNC(GameScene);
+	static Scene* createScene();//创建场景
+	virtual bool init();//初始化场景
+	CREATE_FUNC(GameScene);//关联起create和init
 	//触摸监听
 	virtual bool onTouchBegan(Touch* touch, Event* event);
 	virtual void onTouchEnded(Touch* touch,Event* event);
+	//键盘监听
 	void onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
-	
 	//上下左右滑动动作
 	bool moveLeft();
 	bool moveRight();
 	bool moveUp();
 	bool moveDown();
-	//创建4*4卡片矩阵
+	//创建4*4或5*5卡片矩阵
 	void createCardArr();
+	//随机产生一个卡片
 	void randomCreateCard();
 	//判断游戏赢输
 	void checkGameWin();
 	void checkGameOver();
-	void showMenu(std::string result);//菜单显示
-	void showRanking(Ref* sender);//显示排名
-	void restart(Ref* sender); //重新开始游戏菜单项
-	void pauseMenu(Ref* sender);//暂停后显示的界面
-	void resume(Ref* sender);//重写恢复功能
-	void modeChange(Ref* sender);//模式转换
-	void createRanking(const int &score);//补充每次的成绩
-	void getNoSort();//得到vector不排序
-	void toggleSound();//切换声音开关
+	//菜单显示
+	void showMenu(std::string result);
+	//显示排名
+	void showRanking(Ref* sender);
+	//重新开始游戏菜单项
+	void restart(Ref* sender);
+	//暂停后显示的界面
+	void pauseMenu(Ref* sender);
+	//继续游戏按钮
+	void Continue(Ref* sender);
+	//重写恢复功能
+	void resume(Ref* sender);
+	//模式转换
+	void modeChange(Ref* sender);
+	//补充每次的成绩
+	void createRanking(const int &score);
+	//得到vector不排序
+	void getNoSort();
+	//切换声音开关
+	void toggleSound();
 private:
 	int score;  //当前分数
 	int bestScore; //最好分数
 	int mode=4;//游戏模式
-	Label* scoreLabel;
+	Label* scoreLabel;//分数标签
 	Sprite* soundButton;//声音按钮
 	bool isSoundOn=true;//声音控制
 	EventListenerKeyboard* keyboardListener;//键盘监听器
@@ -55,9 +65,7 @@ private:
 	MenuItemLabel* menuItemNew4;
 	MenuItemLabel* menuItemNew5;
 	LittleMenu* littleMenu; //菜单层
-	timeval tv; //当前时间
-	struct Score
-	{
+	struct Score{//排行榜用
 		int score;
 		int year;
 		int month;
@@ -65,11 +73,11 @@ private:
 		int hour;
 		int minute;
 	};
-	struct IntString {
+	struct IntString {//排行榜用
 		int number;
 		std::string newString;
 	};
-	std::vector<IntString>rankingList;//记录成绩
+	std::vector<IntString>rankingList;//排行榜记录成绩
 };
 
 #endif

@@ -9,34 +9,32 @@ bool CardSprite::init()
 	else
 		return true;
 }
-//初始化卡片，数字，尺寸，坐标
+/*---初始化卡片，数字，尺寸，坐标---*/
 void CardSprite::cardInit(int num,float p_x, float p_y,int mode)
 {
 	number = num;
 	if(mode==4)
 	    cardBgColour = LayerColor::create(Color4B(191, 191, 191, 255), TileWidth, TileWidth);
-	else
+	else//mode==5
 		cardBgColour = LayerColor::create(Color4B(191, 191, 191, 255), TileWidth_2, TileWidth_2);
 	cardBgColour->setPosition(Point(p_x, p_y));
-	if (number > 0) //如果有数字，则显示数字
+	if (number > 0) //有数字，显示数字
 	{
 		cardLabel = Label::createWithTTF(String::createWithFormat("%d", number)->getCString(), "fonts/Arial.ttf",50);
-		//cardLabel = LabelTTF::create(String::createWithFormat("%d", number)->getCString(), "Arial", 50);
-		//因为是加入到父节点中，所以此处用相对坐标
+		//cardBgColour->getContentSize()表示这个cardBgColour节点的尺寸
 		cardLabel->setPosition(cardBgColour->getContentSize().width / 2, cardBgColour->getContentSize().height / 2);
-		cardBgColour->addChild(cardLabel); //将文字标签加入到卡片层
-
+		cardBgColour->addChild(cardLabel); //将文字标签加入到带颜色的层
 	}
-	else    //否则则是空卡片
+	else//否则空
 	{
 		cardLabel = Label::createWithTTF("", "fonts/Arial.ttf", 50);
-		//cardLabel = LabelTTF::create("", "Arial", 50);
 		cardLabel->setPosition(Vec2(cardBgColour->getContentSize().width / 2, cardBgColour->getContentSize().height / 2));
 		cardBgColour->addChild(cardLabel);
 	}
-	this->addChild(cardBgColour);  //将卡片层加入到卡片精灵
+	//cardLabel->cardBgColour->card(create函数里的）
+	this->addChild(cardBgColour); 
 }
-//返回一个卡片精灵的指针
+/*---返回一个卡片精灵的指针---*/
 CardSprite* CardSprite::createCard(int num,float p_x, float p_y,int mode)
 {
 	CardSprite* card = new CardSprite();
@@ -45,15 +43,15 @@ CardSprite* CardSprite::createCard(int num,float p_x, float p_y,int mode)
 		CC_SAFE_RELEASE(card);
 		return NULL;
 	}
-	card->autorelease();  //设置为自动回收
+	card->autorelease();  //设置为自动回收，无需显式调用delete
 	card->cardInit(num,p_x, p_y,mode);
 	return card;
 }
-//设置卡片的数字
+/*---设置卡片的数字---*/
 void CardSprite::setNumber(int num)
 {
 	number = num;
-	//根据不同的数字范围显示不同的颜色
+	//设置数字颜色
 	if (number >= 0 && number < 16) {
 		TTFConfig ttfConfig("fonts/Arial.ttf", 50);
 		cardLabel->setTTFConfig(ttfConfig);
@@ -70,6 +68,12 @@ void CardSprite::setNumber(int num)
 		TTFConfig ttfConfig("fonts/Arial.ttf", 25);
 		cardLabel->setTTFConfig(ttfConfig);
 	}
+	if (number > 0)  //当数字大于0时才显示数字
+		cardLabel->setString(String::createWithFormat("%d", number)->getCString());
+	else  //否则显示空
+		cardLabel->setString("");
+
+	//设置卡片颜色
 	if (number == 0)
 		cardBgColour->setColor(Color3B(191, 191, 191));
 	if (number == 2)
@@ -94,20 +98,13 @@ void CardSprite::setNumber(int num)
 		cardBgColour->setColor(Color3B(204, 204, 255));
 	if (number == 2048)
 		cardBgColour->setColor(Color3B(255, 204, 00));
-
-	if (number > 0)  //当数字大于0时才显示数字
-		cardLabel->setString(String::createWithFormat("%d", number)->getCString());
-	else  //否则显示空
-		cardLabel->setString("");
 }
-
-//获得卡片数字
+/*---获得卡片数字---*/
 int CardSprite::getNumber()
 {
 	return number;
 }
-
-//获得卡片层
+/*---获得卡片层---*/
 LayerColor* CardSprite::getCardLayer()
 {
 	return cardBgColour;
