@@ -28,23 +28,23 @@ bool GameScene::init()
 	title->setPosition(Vec2(visibleSize.width * 15 / 18, visibleSize.height * 3 / 4));
 	this->addChild(title);
 	score = 0;
-	scoreLabel = Label::createWithTTF("0", "fonts/calibri.ttf",60);
+	scoreLabel = Label::createWithTTF("0", "fonts/calibri.ttf", 60);
 	scoreLabel->setColor(Color3B(119, 136, 153));
-	scoreLabel->setPosition(Point(visibleSize.width * 15 / 18-10, visibleSize.height * 8 / 12-20));
+	scoreLabel->setPosition(Point(visibleSize.width * 15 / 18 - 10, visibleSize.height * 8 / 12 - 20));
 	this->addChild(scoreLabel);
 	bestScore = UserDefault::getInstance()->getIntegerForKey("BEST");
 
 	Vector<MenuItem*> MenuItems;
 	const auto label1 = Label::createWithTTF("New Game", "fonts/Mouldy.ttf", 30);
-	menuItemNew1 = MenuItemLabel::create(label1,CC_CALLBACK_1(GameScene::restart, this));
+	menuItemNew1 = MenuItemLabel::create(label1, CC_CALLBACK_1(GameScene::restart, this));
 	MenuItems.pushBack(menuItemNew1);
-	menuItemNew1->setPosition(Vec2(visibleSize.width * 15 / 18, visibleSize.height / 8-60));
-	menuItemNew1->setColor(Color3B(108,123,139));
+	menuItemNew1->setPosition(Vec2(visibleSize.width * 15 / 18, visibleSize.height / 8 - 60));
+	menuItemNew1->setColor(Color3B(108, 123, 139));
 
 	const auto label2 = Label::createWithTTF("Exit", "fonts/Mouldy.ttf", 24);
-	menuItemNew2 =MenuItemLabel::create(label2,[](Ref* sender) {Director::getInstance()->end();});
+	menuItemNew2 = MenuItemLabel::create(label2, [](Ref* sender) {Director::getInstance()->end(); });
 	MenuItems.pushBack(menuItemNew2);
-	menuItemNew2->setPosition(Vec2(visibleSize.width * 17 / 18+25, visibleSize.height-25));
+	menuItemNew2->setPosition(Vec2(visibleSize.width * 17 / 18 + 25, visibleSize.height - 25));
 	menuItemNew2->setColor(Color3B(108, 123, 139));
 
 	const auto label3 = Label::createWithTTF("Ranking List", "fonts/Mouldy.ttf", 30);
@@ -70,13 +70,13 @@ bool GameScene::init()
 	const auto menu = Menu::createWithArray(MenuItems);
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 1);
-	
+
 	//声音按钮
 	isSoundOn = UserDefault::getInstance()->getBoolForKey("sound");//获取声音变量
-	if(isSoundOn==true)
-	    soundButton =Sprite::create("soundOn.png");
+	if (isSoundOn == true)
+		soundButton = Sprite::create("soundOn.png");
 	else
-		soundButton =Sprite::create("soundOff.png");
+		soundButton = Sprite::create("soundOff.png");
 	soundButton->setPosition(Vec2(visibleSize.width * 15 / 18, visibleSize.height / 8 + 180));
 	this->addChild(soundButton);
 
@@ -151,10 +151,10 @@ void GameScene::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 	switch (keyCode)
 	{
 	case EventKeyboard::KeyCode::KEY_LEFT_ARROW:
-		isTouch=moveLeft();
+		isTouch = moveLeft();
 		break;
 	case EventKeyboard::KeyCode::KEY_RIGHT_ARROW:
-		isTouch=moveRight();
+		isTouch = moveRight();
 		break;
 	case EventKeyboard::KeyCode::KEY_UP_ARROW:
 		isTouch = moveUp();
@@ -184,11 +184,11 @@ void GameScene::createCardArr()
 		{
 			CardSprite* card;
 			//坐标从左下角算起，右为正，上为正
-			if (mode == 4){//4*4模式
+			if (mode == 4) {//4*4模式
 				card = CardSprite::createCard(0, i * TileWidth + (i + 1) * TileBorderWidth,
-					j * TileWidth + (j + 1) * TileBorderWidth,mode);
+					j * TileWidth + (j + 1) * TileBorderWidth, mode);
 			}
-			else{//5*5模式
+			else {//5*5模式
 				card = CardSprite::createCard(0, i * TileWidth_2 + (i + 1) * TileBorderWidth_2,
 					j * TileWidth_2 + (j + 1) * TileBorderWidth_2, mode);
 			}
@@ -209,7 +209,7 @@ void GameScene::randomCreateCard()
 		cardArr[row][col]->setNumber(CCRANDOM_0_1() * 10 < 1 ? 4 : 2); //有10%的几率生成4
 		//动画效果
 		const auto action = Sequence::createWithTwoActions(ScaleTo::create(0.0f, 0.5f), ScaleTo::create(0.3f, 1));  //在0.15秒内从小缩放到大
-		cardArr[row][col]->getCardLayer()->runAction(action); 
+		cardArr[row][col]->getCardLayer()->runAction(action);
 	}
 }
 /*----向左滑动逻辑----*/
@@ -254,16 +254,16 @@ bool GameScene::moveRight()
 	bool moved = false;
 	bool cleared = false;
 	for (int x = 0; x < mode; x++) {
-		for (int y = mode-1; y >= 0; y--){
-			for (int y1 = y - 1; y1 >= 0; y1--){
+		for (int y = mode - 1; y >= 0; y--) {
+			for (int y1 = y - 1; y1 >= 0; y1--) {
 				if (cardArr[x][y1]->getNumber() > 0) {
-					if (cardArr[x][y]->getNumber() == 0){
+					if (cardArr[x][y]->getNumber() == 0) {
 						cardArr[x][y]->setNumber(cardArr[x][y1]->getNumber());
 						cardArr[x][y1]->setNumber(0);
 						y++;
 						moved = true;
 					}
-					else if (cardArr[x][y]->getNumber() == cardArr[x][y1]->getNumber()){
+					else if (cardArr[x][y]->getNumber() == cardArr[x][y1]->getNumber()) {
 						cardArr[x][y]->setNumber(cardArr[x][y]->getNumber() * 2);
 						cardArr[x][y1]->setNumber(0);
 						auto merge = Sequence::create(ScaleTo::create(0.1f, 1.2f), ScaleTo::create(0.1f, 1.0f), NULL);
@@ -366,7 +366,7 @@ void GameScene::getNoSort()
 	std::string s_tmp;
 	IntString new_result;
 	int k = 1;
-	for (; k <=9; k++)
+	for (; k <= 9; k++)
 	{
 		s_tmp = "Key" + std::to_string(k);
 		std::string result = UserDefault::getInstance()->getStringForKey(s_tmp.c_str(), "");
@@ -395,7 +395,7 @@ void GameScene::createRanking(const int& score)
 	const time_t now = time(0);
 	const tm* localTime = localtime(&now);
 	tmp.score = score;
-	tmp.year= localTime->tm_year + 1900;
+	tmp.year = localTime->tm_year + 1900;
 	tmp.month = localTime->tm_mon + 1;
 	tmp.day = localTime->tm_mday;
 	tmp.hour = localTime->tm_hour;
@@ -403,14 +403,14 @@ void GameScene::createRanking(const int& score)
 	std::string arrayString;
 	std::string s_tmp;
 	arrayString += std::to_string(tmp.score) + "," + std::to_string(tmp.year) + "." + std::to_string(tmp.month) + "." + std::to_string(tmp.day)
-		+ " " + std::to_string(tmp.hour) + ":" + std::to_string(tmp.minute)+"("+ std::to_string(mode)+"*"+ std::to_string(mode)+")";
+		+ " " + std::to_string(tmp.hour) + ":" + std::to_string(tmp.minute) + "(" + std::to_string(mode) + "*" + std::to_string(mode) + ")";
 	// 存储数组字符串到 UserDefault
-	int order= 1;
+	int order = 1;
 	bool saved = false;//是否成功存储
-	for (; order <=9; order++)
+	for (; order <= 9; order++)
 	{
 		s_tmp = "Key" + std::to_string(order);
-		std::string result = UserDefault::getInstance()->getStringForKey(s_tmp.c_str(),"");
+		std::string result = UserDefault::getInstance()->getStringForKey(s_tmp.c_str(), "");
 		if (result == "")//如果有位置没被占据，那么就把它填进去，示为已保存
 		{
 			UserDefault::getInstance()->setStringForKey(s_tmp.c_str(), arrayString);
@@ -426,8 +426,8 @@ void GameScene::createRanking(const int& score)
 	{
 		getNoSort();
 		const unsigned num = rankingList.size();
-		int min=score,min_index=0;
-		for (unsigned int i=0;i<num;i++)
+		int min = score, min_index = 0;
+		for (unsigned int i = 0; i < num; i++)
 		{
 			if (rankingList[i].number < min)//找出已经存入的数据中最小的数的下标
 			{
@@ -437,7 +437,7 @@ void GameScene::createRanking(const int& score)
 		}
 		if (min != score)//等于的话说明新得到的成绩最低，肯定排不上前九，就不用管了
 		{
-			s_tmp = "Key" + std::to_string(min_index+1);
+			s_tmp = "Key" + std::to_string(min_index + 1);
 			UserDefault::getInstance()->setStringForKey(s_tmp.c_str(), arrayString);//覆盖
 		}
 	}
@@ -452,14 +452,14 @@ void GameScene::showMenu(std::string result)
 	const auto menuSize = littleMenu->getContentSize();
 	//添加标题
 	const TTFConfig config("fonts/Arial.ttf", 30);//字体
-	const auto menuTitle = Label::createWithTTF(config,result);
+	const auto menuTitle = Label::createWithTTF(config, result);
 	menuTitle->setPosition(menuSize.width / 2, menuSize.height / 2 + 50);
 	littleMenu->addChild(menuTitle);
 	//添加当前分数
 	const std::string scoreLabel = String::createWithFormat("current: %d", score)->getCString();
 	createRanking(score);
 	const TTFConfig config1("fonts/Arial.ttf", 20);//字体
-	const auto menuscoreLabel = Label::createWithTTF(config1,scoreLabel);
+	const auto menuscoreLabel = Label::createWithTTF(config1, scoreLabel);
 	menuscoreLabel->setPosition(menuSize.width / 2, menuSize.height / 2);
 	littleMenu->addChild(menuscoreLabel);
 	//添加最好分数
@@ -469,11 +469,11 @@ void GameScene::showMenu(std::string result)
 		bestScore = score;
 		UserDefault::getInstance()->setIntegerForKey("BEST", bestScore);
 	}
-	const auto menuBestscoreLabel = Label::createWithTTF(config1,String::createWithFormat("best: %d", bestScore)->getCString());
+	const auto menuBestscoreLabel = Label::createWithTTF(config1, String::createWithFormat("best: %d", bestScore)->getCString());
 	menuBestscoreLabel->setPosition(menuSize.width / 2, menuSize.height / 2 - 30);
 	littleMenu->addChild(menuBestscoreLabel);
 	//添加重新开始的按钮
-	const auto label= Label::createWithTTF("Restart", "fonts/Mouldy.ttf", 30);
+	const auto label = Label::createWithTTF("Restart", "fonts/Mouldy.ttf", 30);
 	const auto menuItemRestart = MenuItemLabel::create(label, CC_CALLBACK_1(GameScene::restart, this));
 	menuItemRestart->setColor(Color3B(255, 255, 0));
 	const auto menu = Menu::create(menuItemRestart, NULL);
@@ -497,17 +497,17 @@ void GameScene::showRanking(Ref* sender)
 	//添加顺序
 	const auto order = Label::createWithTTF("order", "fonts/calibri.ttf", 40);
 	order->setColor(Color3B(191, 191, 191));
-	order->setPosition(Vec2(visibleSize.width * 1 / 4-100, visibleSize.height - 45));
+	order->setPosition(Vec2(visibleSize.width * 1 / 4 - 100, visibleSize.height - 45));
 	littleMenu->addChild(order);
 	//添加分数和时间
 	const auto score = Label::createWithTTF("score", "fonts/calibri.ttf", 40);
 	score->setColor(Color3B(191, 191, 191));
-	score->setPosition(Vec2(visibleSize.width * 2 / 5-100, visibleSize.height - 45));
+	score->setPosition(Vec2(visibleSize.width * 2 / 5 - 100, visibleSize.height - 45));
 	littleMenu->addChild(score);
 	//添加时间和模式
 	const auto time = Label::createWithTTF("time and mode", "fonts/calibri.ttf", 40);
 	time->setColor(Color3B(191, 191, 191));
-	time->setPosition(Vec2(visibleSize.width * 3 / 5-50, visibleSize.height - 45));
+	time->setPosition(Vec2(visibleSize.width * 3 / 5 - 50, visibleSize.height - 45));
 	littleMenu->addChild(time);
 	//添加格格
 	for (int i = 0; i < 9; i++)
@@ -534,17 +534,17 @@ void GameScene::showRanking(Ref* sender)
 	for (unsigned int i = 0; i < num; i++)
 	{
 		const auto label1 = Label::createWithTTF(String::createWithFormat("%d", i + 1)->getCString(), "fonts/calibri.ttf", 30);
-		label1->setPosition(Vec2(visibleSize.width * 1 / 4-100, visibleSize.height / 10 * (9 - i)-35));
+		label1->setPosition(Vec2(visibleSize.width * 1 / 4 - 100, visibleSize.height / 10 * (9 - i) - 35));
 		label1->setColor(Color3B(108, 123, 139));
 		littleMenu->addChild(label1);
 
 		const auto label2 = Label::createWithTTF(String::createWithFormat("%d", rankingList[i].number)->getCString(), "fonts/calibri.ttf", 30);
-		label2->setPosition(Vec2(visibleSize.width * 2 / 4-200, visibleSize.height / 10 * (9 - i)-35));
+		label2->setPosition(Vec2(visibleSize.width * 2 / 4 - 200, visibleSize.height / 10 * (9 - i) - 35));
 		label2->setColor(Color3B(108, 123, 139));
 		littleMenu->addChild(label2);
 
-		const auto label3= Label::createWithTTF(rankingList[i].newString, "fonts/calibri.ttf", 30);
-		label3->setPosition(Vec2(visibleSize.width * 3 / 4-175, visibleSize.height / 10 * (9 - i)-35));
+		const auto label3 = Label::createWithTTF(rankingList[i].newString, "fonts/calibri.ttf", 30);
+		label3->setPosition(Vec2(visibleSize.width * 3 / 4 - 175, visibleSize.height / 10 * (9 - i) - 35));
 		label3->setColor(Color3B(108, 123, 139));
 		littleMenu->addChild(label3);
 	}
@@ -571,13 +571,13 @@ void GameScene::pauseMenu(Ref* sender)
 	menuItemNew5->setEnabled(false);
 	littleMenu = LittleMenu::create(Color4B(0, 0, 0, 100));
 	this->addChild(littleMenu);
-	auto  menuTitle = Label::createWithTTF("PAUSED","fonts/calibri.ttf", 30);
+	auto  menuTitle = Label::createWithTTF("PAUSED", "fonts/calibri.ttf", 30);
 	const auto menuSize = littleMenu->getContentSize();
 	menuTitle->setPosition(menuSize.width / 2, menuSize.height / 2 + 50);
 	littleMenu->addChild(menuTitle);
 	Director::getInstance()->pause();
 	const auto menuItemRestart = MenuItemFont::create("Click Here To Resume", CC_CALLBACK_1(GameScene::resume, this));
-	menuItemRestart->setColor(Color3B(245,245, 245));
+	menuItemRestart->setColor(Color3B(245, 245, 245));
 	const auto menu = Menu::create(menuItemRestart, NULL);
 	littleMenu->addChild(menu);
 	menu->setPosition(Point(menuSize.width / 2, menuSize.height / 2));
@@ -587,11 +587,13 @@ void GameScene::Continue(Ref* sender)
 {
 	menuItemNew3->setEnabled(true);
 	menuItemNew4->setEnabled(true);
+	keyboardListener->setEnabled(true);
+
 	rankingList.clear();
 	this->removeChild(littleMenu, true);
 }
 /*----模式转换----*/
-void GameScene::modeChange(Ref* sender) 
+void GameScene::modeChange(Ref* sender)
 {
 	mode = (mode == 4) ? 5 : 4;
 	UserDefault::getInstance()->setIntegerForKey("mode", mode);
@@ -601,7 +603,7 @@ void GameScene::modeChange(Ref* sender)
 	this->removeAllChildrenWithCleanup(true);
 	//重新初始化场景
 	if (!this->init()) {
-      //初始化失败处理
+	  //初始化失败处理
 		cocos2d::log("Scene initialization failed!");
 	}
 	*/
@@ -612,7 +614,7 @@ void GameScene::checkGameWin()
 	bool isWin = false;
 	for (int i = 0; i < mode; i++)
 		for (int j = 0; j < mode; j++)
-			if (cardArr[i][j]->getNumber()==2048)
+			if (cardArr[i][j]->getNumber() == 2048)
 				isWin = true;
 	if (isWin && isSoundOn)
 	{
@@ -632,9 +634,9 @@ void GameScene::checkGameOver()
 		{//单凡有一个空格或有两个连一起的就没有输
 			if ((cardArr[i][j]->getNumber() == 0) ||
 				(i > 0 && cardArr[i][j]->getNumber() == cardArr[i - 1][j]->getNumber()) ||
-				(i < mode-1 && cardArr[i][j]->getNumber() == cardArr[i + 1][j]->getNumber()) ||
+				(i < mode - 1 && cardArr[i][j]->getNumber() == cardArr[i + 1][j]->getNumber()) ||
 				(j > 0 && cardArr[i][j]->getNumber() == cardArr[i][j - 1]->getNumber()) ||
-				(j < mode-1 && cardArr[i][j]->getNumber() == cardArr[i][j + 1]->getNumber()))
+				(j < mode - 1 && cardArr[i][j]->getNumber() == cardArr[i][j + 1]->getNumber()))
 			{
 				isGameOver = false;
 				break;
@@ -643,7 +645,7 @@ void GameScene::checkGameOver()
 	}
 	//否则游戏结束
 	if (isGameOver && isSoundOn)
-	{			
+	{
 		SimpleAudioEngine::getInstance()->playEffect("gameover.mp3");
 		showMenu("Game Over");
 	}
